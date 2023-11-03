@@ -1,0 +1,9 @@
+.table-row{
+    /* cursor: pointer; */
+    text-align: center;
+    align-items: center;
+}
+.table-row:hover{
+    background-color: rgba(114, 114, 114, 0.219);
+    /* background-color: #bb86fc33; */
+}
