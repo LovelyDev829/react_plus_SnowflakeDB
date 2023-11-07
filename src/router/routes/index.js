@@ -21,6 +21,14 @@ const Routes = [
     component: lazy(() => import('../../views/MyDataPage'))
   },
   {
+    path: '/my-data-table',
+    component: lazy(() => import('../../views/MyDataTablePage'))
+  },
+  {
+    path: '/my-data-table-column',
+    component: lazy(() => import('../../views/MyDataTableColumnPage'))
+  },
+  {
     path: '/login',
     component: lazy(() => import('../../views/Login')),
     layout: 'BlankLayout',

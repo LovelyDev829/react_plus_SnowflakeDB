@@ -55,12 +55,14 @@ const rows = [
 ]
 
 const ConnectionsPage = () => {
-  const [open, setOpen] = useState(false)
-  const handleClose = () => setOpen(false)
+  const [openOne, setOpenOne] = useState(false)
+  const [openTwo, setOpenTwo] = useState(false)
+  const [openThree, setOpenThree] = useState(false)
   return (
     <Card>
       <CardHeader>
         <CardTitle>Connections List</CardTitle>
+        <Button variant="outlined" onClick={() => setOpenOne(true)}>Add a New Connection</Button>
       </CardHeader>
       <CardBody>
         <TableContainer component={Paper}>
@@ -83,8 +85,8 @@ const ConnectionsPage = () => {
                   <StyledTableCell align="center">{row.user}</StyledTableCell>
                   <StyledTableCell align="center" style={{width : "0px"}}>
                     <Stack spacing={2} direction="row" align="right" style={{width: "justify-content"}}>
-                      <Button variant="outlined" startIcon={<Edit size={20} />}>Edit</Button>
-                      <Button variant="outlined" color='error' startIcon={<Trash size={20} />}>Delete</Button>
+                      <Button variant="outlined" startIcon={<Edit size={20} />} onClick={() => setOpenTwo(true)}>Edit</Button>
+                      <Button variant="outlined" color='error' startIcon={<Trash size={20} />} onClick={() => setOpenThree(true)}>Delete</Button>
                     </Stack>
                   </StyledTableCell>
                 </StyledTableRow>
@@ -92,13 +94,10 @@ const ConnectionsPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <div style={{paddingTop: "15px", width: "100%", boxSizing: "border-box", textAlign: "center"}}>
-          <Button style={{width: "100%"}} variant="outlined" onClick={() => setOpen(true)}>Add a New Connection</Button>
-        </div>
       </CardBody>
       <Dialog
-        open={open}
-        onClose={handleClose}
+        open={openOne}
+        onClose={() => setOpenOne(false)}
         aria-labelledby='alert-dialog-title'
         aria-describedby='alert-dialog-description'
       >
@@ -136,10 +135,71 @@ const ConnectionsPage = () => {
           </Grid>
         </DialogContent>
         <DialogActions className='dialog-actions-dense'>
-          <Button onClick={handleClose} variant="outlined">Test Connection</Button>
+          <Button onClick={() => setOpenOne(false)} variant="outlined">Test Connection</Button>
           <div style={{flex: '1 0 0'}} />
-          <Button onClick={handleClose} variant="outlined">Create</Button>
-          <Button onClick={handleClose} variant="outlined" color='error'>Close</Button>
+          <Button onClick={() => setOpenOne(false)} variant="outlined">Create</Button>
+          <Button onClick={() => setOpenOne(false)} variant="outlined" color='error'>Close</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openTwo}
+        onClose={() => setOpenTwo(false)}
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
+      >
+        <DialogTitle id='alert-dialog-title'>Edit A Connection</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField label="Connection Name" variant="standard"/>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl>
+                <FormLabel id="demo-row-radio-buttons-group-label">Data Source</FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-radio-buttons-group-label"
+                  name="row-radio-buttons-group"
+                >
+                  <FormControlLabel value="snowflake" control={<Radio />} label="Snowflake" />
+                  <FormControlLabel value="other" control={<Radio />} label="Other" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField label="Account Name" variant="standard"/>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField label="User Name" variant="standard"/>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField label="Password" variant="standard"/>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField label="Warehouse Name" variant="standard"/>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions className='dialog-actions-dense'>
+          <Button onClick={() => setOpenTwo(false)} variant="outlined">Test Connection</Button>
+          <div style={{flex: '1 0 0'}} />
+          <Button onClick={() => setOpenTwo(false)} variant="outlined">Edit</Button>
+          <Button onClick={() => setOpenTwo(false)} variant="outlined" color='error'>Close</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openThree}
+        onClose={() => setOpenThree(false)}
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
+      >
+        <DialogTitle id='alert-dialog-title'>Confirmation</DialogTitle>
+        <DialogContent>
+          Are you sure to delete the connection?
+        </DialogContent>
+        <DialogActions className='dialog-actions-dense'>
+          <Button onClick={() => setOpenThree(false)} variant="outlined" color='error'>Delete</Button>
+          <Button onClick={() => setOpenThree(false)} variant="outlined">Close</Button>
         </DialogActions>
       </Dialog>
     </Card>

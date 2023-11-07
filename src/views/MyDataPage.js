@@ -1,24 +1,11 @@
 import { Card, CardHeader, CardBody, CardTitle, CardText } from 'reactstrap'
 import { styled } from '@mui/material/styles'
-import { useState } from "react"
 import Paper from '@mui/material/Paper'
-import { Trash, Edit, Search } from 'react-feather'
+import { Search } from 'react-feather'
 import '../App.css'
-import Stack from '@mui/material/Stack'
-import Button from '@mui/material/Button'
-import Dialog from "@mui/material/Dialog"
-import DialogTitle from "@mui/material/DialogTitle"
-import DialogContent from "@mui/material/DialogContent"
-import DialogActions from "@mui/material/DialogActions"
-import DialogContentText from "@mui/material/DialogContentText"
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import FormLabel from '@mui/material/FormLabel'
 import Autocomplete from '@mui/material/Autocomplete'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -26,6 +13,7 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import { useHistory } from 'react-router-dom'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -65,8 +53,7 @@ const top100Films = [
 ]
 
 const ConnectionsPage = () => {
-  const [openOne, setOpenOne] = useState(false)
-  const [openTwo, setOpenTwo] = useState(false)
+  const history = useHistory()
   return (
     <div>
       <Card>
@@ -130,7 +117,7 @@ const ConnectionsPage = () => {
               <TableBody>
                 {rows.map((row) => (
                   <StyledTableRow key={row.connection} className='table-row' style={{cursor: "pointer"}}
-                  onClick={() => { setOpenOne(true); setOpenTwo(false) }}>
+                  onClick={() => history.push('/my-data-table')}>
                     <StyledTableCell component="th" scope="row">
                       {row.connection}
                     </StyledTableCell>
@@ -142,71 +129,6 @@ const ConnectionsPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        </CardBody>
-      </Card>
-      <Card>
-        <CardBody style={!openOne ? {display: 'none'} : {}}>
-          <DialogTitle id='alert-dialog-title'>Table Name ABC</DialogTitle>
-          <DialogContent>
-            <DialogContentText style={{textAlign: "center"}}>
-              (Clustered by XXX - if available  |  created YYYY-MM-DD  |  Last Updated YYYY-MM-DD)
-            </DialogContentText>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TableContainer component={Paper}>
-                  <Table  aria-label="customized table">
-                    <TableHead>
-                      <TableRow style={{textAlign: 'center'}}>
-                        <StyledTableCell align="center">Column</StyledTableCell>
-                        <StyledTableCell align="center">Data Type</StyledTableCell>
-                        <StyledTableCell align="center">Score</StyledTableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row) => (
-                        <StyledTableRow key={row.connection} className='table-row' style={{cursor: "pointer"}}
-                        onClick={() => setOpenTwo(true)}>
-                          <StyledTableCell component="th" scope="row">
-                            {row.connection}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">{row.database}</StyledTableCell>
-                          <StyledTableCell align="center">{row.schema}</StyledTableCell>
-                        </StyledTableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Grid>
-              <Grid item xs={6}>
-                Graph (chart with daily row count and freshness line)
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions className='dialog-actions-dense'>
-            <Button onClick={() => { setOpenOne(false); setOpenTwo(false) }} variant="outlined" color='error'>Close</Button>
-          </DialogActions>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardBody style={!openTwo ? {display: 'none'} : {}}>
-          <DialogTitle id='alert-dialog-title'>Column A</DialogTitle>
-          <DialogContent>
-            <DialogContentText style={{textAlign: "center"}}>
-              (Data Type)
-            </DialogContentText>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                Graph (chart with daily NULL count)
-              </Grid>
-              <Grid item xs={6}>
-                Graph (if numeric or date/timestamp, show range of values daily.)
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions className='dialog-actions-dense'>
-            <Button onClick={() => setOpenTwo(false) } variant="outlined" color='error'>Close</Button>
-          </DialogActions>
         </CardBody>
       </Card>
     </div>

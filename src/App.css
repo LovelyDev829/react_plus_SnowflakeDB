@@ -7,3 +7,9 @@
     background-color: rgba(114, 114, 114, 0.219);
     /* background-color: #bb86fc33; */
 }
+.back-tag{
+    cursor: pointer;
+}
+.back-tag:hover{
+    color: rgb(32, 168, 105);
+}
