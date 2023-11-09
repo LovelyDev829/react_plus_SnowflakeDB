@@ -1,12 +1,16 @@
 import { useSkin } from '@hooks/useSkin'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { Facebook, Twitter, Mail, GitHub } from 'react-feather'
 import InputPasswordToggle from '@components/input-password-toggle'
 import { Row, Col, CardTitle, CardText, Form, Label, Input, Button } from 'reactstrap'
 import '@styles/react/pages/page-authentication.scss'
+import { useState } from 'react'
 
 const LoginCover = () => {
+  const history = useHistory()
   const { skin } = useSkin()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
   const illustration = skin === 'dark' ? 'login-v2-dark.svg' : 'login-v2.svg',
     source = require(`@src/assets/images/pages/${illustration}`).default
@@ -33,7 +37,7 @@ const LoginCover = () => {
                 <Label className='form-label' for='login-email'>
                   Email
                 </Label>
-                <Input type='email' id='login-email' placeholder='john@example.com' autoFocus />
+                <Input type='email' id='login-email' placeholder='john@example.com' autoFocus value={email} onChange={(e) => setEmail(e.target.value)}/>
               </div>
               <div className='mb-1'>
                 <div className='d-flex justify-content-between'>
@@ -44,7 +48,7 @@ const LoginCover = () => {
                     <small>Forgot Password?</small>
                   </Link>
                 </div>
-                <InputPasswordToggle className='input-group-merge' id='login-password' />
+                <InputPasswordToggle className='input-group-merge' id='login-password' value={password} onChange={(e) => setPassword(e.target.value)}/>
               </div>
               <div className='form-check mb-1'>
                 <Input type='checkbox' id='remember-me' />
@@ -52,7 +56,12 @@ const LoginCover = () => {
                   Remember Me
                 </Label>
               </div>
-              <Button color='primary' tag={Link} block to='/home'>
+              <Button color='primary'
+                onClick={() => {
+                  if (email === "admin@gmail.com" && password === "password") {
+                    history.push('/home')
+                  }
+                }}>
                 Sign in
               </Button>
             </Form>
