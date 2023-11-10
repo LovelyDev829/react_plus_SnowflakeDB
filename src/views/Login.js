@@ -1,19 +1,106 @@
-import { useSkin } from '@hooks/useSkin'
+// ** React Imports
+import { Fragment, useState, useEffect} from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { Facebook, Twitter, Mail, GitHub } from 'react-feather'
+
+// ** Custom Hooks
+import { useSkin } from '@hooks/useSkin'
+// import useJwt from '@src/auth/jwt/useJwt'
+
+// ** Third Party Components
+// import { useDispatch } from 'react-redux'
+import { toast, Slide } from 'react-toastify'
+import { useForm, Controller } from 'react-hook-form'
+import { Facebook, Twitter, Mail, GitHub, HelpCircle, Coffee } from 'react-feather'
+
+// ** Actions
+// import { handleLogin } from '@store/authentication'
+
+// ** Context
+// import { AbilityContext } from '@src/utility/context/Can'
+
+// ** Custom Components
+import Avatar from '@components/avatar'
 import InputPasswordToggle from '@components/input-password-toggle'
-import { Row, Col, CardTitle, CardText, Form, Label, Input, Button } from 'reactstrap'
+
+// ** Utils
+// import { getHomeRouteForLoggedInUser } from '@utils'
+
+// ** Reactstrap Imports
+import { Row, Col, Form, Input, Label, Alert, Button, CardText, CardTitle, UncontrolledTooltip } from 'reactstrap'
+
+// ** Styles
 import '@styles/react/pages/page-authentication.scss'
-import { useState } from 'react'
 
-const LoginCover = () => {
+const ToastContent = ({ name, role }) => (
+  <Fragment>
+    <div className='toastify-header'>
+      <div className='title-wrapper'>
+        <Avatar size='sm' color='success' icon={<Coffee size={12} />} />
+        <h6 className='toast-title fw-bold'>Welcome, {name}</h6>
+      </div>
+    </div>
+    <div className='toastify-body'>
+      <span>You have successfully logged in as an {role} user to Vuexy. Now you can start to explore. Enjoy!</span>
+    </div>
+  </Fragment>
+)
+
+const defaultValues = {
+  password: '',
+  loginEmail: ''
+}
+import axios from 'axios'
+const baseURL = 'http://localhost:5000'
+
+const Login = () => {
   const history = useHistory()
+  const [errorMsg, setErrorMsg] = useState("")
+  // ** Hooks
   const { skin } = useSkin()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  // const dispatch = useDispatch()
+  // const history = useHistory()
+  // const ability = useContext(AbilityContext)
+  const [userData, setUserData] = useState(null)
 
+  //** ComponentDidMount
+  useEffect(() => {
+    localStorage.setItem('userData', JSON.stringify(userData))
+  }, [userData])
+  const {
+    control,
+    setError,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({ defaultValues })
   const illustration = skin === 'dark' ? 'login-v2-dark.svg' : 'login-v2.svg',
     source = require(`@src/assets/images/pages/${illustration}`).default
+
+  const onSubmit = data => {
+    console.log("data", data)
+    if (Object.values(data).every(field => field.length > 0)) {
+      axios.post(`${baseURL}/user/check-user`, { email: data.loginEmail, password: data.password })
+        .then((response) => {
+          console.log("response?.data", response?.data)
+          setUserData(response.data?.userData)
+          if (response?.data?.success) {
+            toast.success(
+              <ToastContent name={ response.data.userData.userName || 'John Doe'} role={response.data.userData.role || 'admin'} />,
+              { icon: false, transition: Slide, hideProgressBar: true, autoClose: 2000 }
+            )
+            history.push('/home')
+          } else setErrorMsg(response.data.message)
+        })
+        .catch((error) => console.log(error))
+    } else {
+      for (const key in data) {
+        if (data[key].length === 0) {
+          setError(key, {
+            type: 'manual'
+          })
+        }
+      }
+    }
+  }
 
   return (
     <div className='auth-wrapper auth-cover'>
@@ -29,26 +116,46 @@ const LoginCover = () => {
         <Col className='d-flex align-items-center auth-bg px-2 p-lg-5' lg='4' sm='12'>
           <Col className='px-xl-2 mx-auto' sm='8' md='6' lg='12'>
             <CardTitle tag='h2' className='fw-bold mb-1'>
-              Welcome to KO.Data!
+              Welcome to KO.Data
             </CardTitle>
             <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText>
-            <Form className='auth-login-form mt-2' onSubmit={e => e.preventDefault()}>
+            <Form className='auth-login-form mt-2' onSubmit={handleSubmit(onSubmit)} onChange={() => setErrorMsg("")}>
               <div className='mb-1'>
                 <Label className='form-label' for='login-email'>
                   Email
                 </Label>
-                <Input type='email' id='login-email' placeholder='john@example.com' autoFocus value={email} onChange={(e) => setEmail(e.target.value)}/>
+                <Controller
+                  id='loginEmail'
+                  name='loginEmail'
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      autoFocus
+                      type='email'
+                      placeholder='john@example.com'
+                      invalid={errors.loginEmail && true}
+                      {...field}
+                    />
+                  )}
+                />
               </div>
               <div className='mb-1'>
                 <div className='d-flex justify-content-between'>
                   <Label className='form-label' for='login-password'>
                     Password
                   </Label>
-                  <Link to='/pages/forgot-password-cover'>
+                  <Link to='/forgot-password'>
                     <small>Forgot Password?</small>
                   </Link>
                 </div>
-                <InputPasswordToggle className='input-group-merge' id='login-password' value={password} onChange={(e) => setPassword(e.target.value)}/>
+                <Controller
+                  id='password'
+                  name='password'
+                  control={control}
+                  render={({ field }) => (
+                    <InputPasswordToggle className='input-group-merge' invalid={errors.password && true} {...field} />
+                  )}
+                />
               </div>
               <div className='form-check mb-1'>
                 <Input type='checkbox' id='remember-me' />
@@ -56,18 +163,16 @@ const LoginCover = () => {
                   Remember Me
                 </Label>
               </div>
-              <Button color='primary'
-                onClick={() => {
-                  if (email === "admin@gmail.com" && password === "password") {
-                    history.push('/home')
-                  }
-                }}>
+              <Button type='submit' color='primary' block>
                 Sign in
               </Button>
             </Form>
             <p className='text-center mt-2'>
+              <span className='me-25' style={{ color: "red" }}>{errorMsg}</span>
+            </p>
+            <p className='text-center mt-2'>
               <span className='me-25'>New on our platform?</span>
-              <Link to='/pages/register-cover'>
+              <Link to='/register'>
                 <span>Create an account</span>
               </Link>
             </p>
@@ -95,4 +200,4 @@ const LoginCover = () => {
   )
 }
 
-export default LoginCover
+export default Login

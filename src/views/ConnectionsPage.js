@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardBody, CardTitle, CardText } from 'reactstrap'
 import { styled } from '@mui/material/styles'
-import { useState } from "react"
+import { useState, useLayoutEffect } from "react"
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
@@ -53,11 +53,38 @@ const rows = [
   createData('My Database', 'Snowflake', 'my_user'),
   createData('Test DB', 'snowflake', 'test_user')
 ]
+const baseURL = 'http://localhost:5000'
+import axios from 'axios'
+let flag = 0
 
 const ConnectionsPage = () => {
+  const [userData, setUserData] = useState(null)
   const [openOne, setOpenOne] = useState(false)
   const [openTwo, setOpenTwo] = useState(false)
   const [openThree, setOpenThree] = useState(false)
+  const [connectionData, setConnectionData] = useState({
+    connectionName: '',
+    dataSource: 'snowflake',
+    accountName: '',
+    userName: '',
+    password: '',
+    warehouseName: '',
+    userId: null
+  })
+  // console.log("localStorage.getItem('userData')", localStorage.getItem('userData'))
+  useLayoutEffect(() => {
+    if (!localStorage.getItem('userData')) return
+    if (flag > 1) return
+    else flag++
+    // if (isUserLoggedIn() !== null) {
+      try {
+        setUserData(JSON.parse(localStorage.getItem('userData')))
+      } catch (e) {}
+      setConnectionData({...connectionData, userId: userData?._id})
+      console.log("userData", userData)
+    // }
+  }, [userData])
+
   return (
     <Card>
       <CardHeader>
@@ -68,7 +95,7 @@ const ConnectionsPage = () => {
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
             <TableHead>
-              <TableRow style={{textAlign: 'center'}}>
+              <TableRow style={{ textAlign: 'center' }}>
                 <StyledTableCell align="center">Connection Name</StyledTableCell>
                 <StyledTableCell align="center">Data Source</StyledTableCell>
                 <StyledTableCell align="center">User Name</StyledTableCell>
@@ -83,8 +110,8 @@ const ConnectionsPage = () => {
                   </StyledTableCell>
                   <StyledTableCell align="center">{row.source}</StyledTableCell>
                   <StyledTableCell align="center">{row.user}</StyledTableCell>
-                  <StyledTableCell align="center" style={{width : "0px"}}>
-                    <Stack spacing={2} direction="row" align="right" style={{width: "justify-content"}}>
+                  <StyledTableCell align="center" style={{ width: "0px" }}>
+                    <Stack spacing={2} direction="row" align="right" style={{ width: "justify-content" }}>
                       <Button variant="outlined" startIcon={<Edit size={20} />} onClick={() => setOpenTwo(true)}>Edit</Button>
                       <Button variant="outlined" color='error' startIcon={<Trash size={20} />} onClick={() => setOpenThree(true)}>Delete</Button>
                     </Stack>
@@ -105,15 +132,19 @@ const ConnectionsPage = () => {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <TextField label="Connection Name" variant="standard"/>
+              <TextField label="Connection Name" variant="standard" value={connectionData?.connectionName}
+                onChange={(e) => setConnectionData({ ...connectionData, connectionName: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
               <FormControl>
                 <FormLabel id="demo-row-radio-buttons-group-label">Data Source</FormLabel>
                 <RadioGroup
                   row
+                  defaultValue="snowflake"
                   aria-labelledby="demo-row-radio-buttons-group-label"
                   name="row-radio-buttons-group"
+
+                  onChange={(e) => setConnectionData({ ...connectionData, dataSource: e.target.value })}
                 >
                   <FormControlLabel value="snowflake" control={<Radio />} label="Snowflake" />
                   <FormControlLabel value="other" control={<Radio />} label="Other" />
@@ -121,23 +152,46 @@ const ConnectionsPage = () => {
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Account Name" variant="standard"/>
+              <TextField label="Account Name" variant="standard" value={connectionData?.accountName}
+                onChange={(e) => setConnectionData({ ...connectionData, accountName: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="User Name" variant="standard"/>
+              <TextField label="User Name" variant="standard" value={connectionData?.userName}
+                onChange={(e) => setConnectionData({ ...connectionData, userName: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Password" variant="standard"/>
+              <TextField label="Password" variant="standard" value={connectionData?.password}
+                onChange={(e) => setConnectionData({ ...connectionData, password: e.target.value })} />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Warehouse Name" variant="standard"/>
+              <TextField label="Warehouse Name" variant="standard" value={connectionData?.warehouseName}
+                onChange={(e) => setConnectionData({ ...connectionData, warehouseName: e.target.value })} />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions className='dialog-actions-dense'>
-          <Button onClick={() => setOpenOne(false)} variant="outlined">Test Connection</Button>
-          <div style={{flex: '1 0 0'}} />
-          <Button onClick={() => setOpenOne(false)} variant="outlined">Create</Button>
+          <Button onClick={() => {
+            // setOpenOne(false)
+            axios.post(`${baseURL}/connection/check-connection`, connectionData)
+            .then((response) => {
+                console.log(response.data)
+                if (!response.data.success) setErrorMsg(response.data.message)
+            })
+            .catch((error) => console.log(error))
+          }} variant="outlined">Test Connection</Button>
+          <div style={{ flex: '1 0 0' }} />
+          <Button onClick={() => {
+            setOpenOne(false)
+            console.log("connectionData", connectionData)
+
+            axios.post(`${baseURL}/connection/create-connection`, connectionData)
+            .then((response) => {
+                console.log(response.data)
+                if (!response.data.success) setErrorMsg(response.data.message)
+            })
+            .catch((error) => console.log(error))
+
+          }} variant="outlined" >Create</Button>
           <Button onClick={() => setOpenOne(false)} variant="outlined" color='error'>Close</Button>
         </DialogActions>
       </Dialog>
@@ -151,7 +205,7 @@ const ConnectionsPage = () => {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <TextField label="Connection Name" variant="standard"/>
+              <TextField label="Connection Name" variant="standard" />
             </Grid>
             <Grid item xs={6}>
               <FormControl>
@@ -167,22 +221,22 @@ const ConnectionsPage = () => {
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Account Name" variant="standard"/>
+              <TextField label="Account Name" variant="standard" />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="User Name" variant="standard"/>
+              <TextField label="User Name" variant="standard" />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Password" variant="standard"/>
+              <TextField label="Password" variant="standard" />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Warehouse Name" variant="standard"/>
+              <TextField label="Warehouse Name" variant="standard" />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions className='dialog-actions-dense'>
           <Button onClick={() => setOpenTwo(false)} variant="outlined">Test Connection</Button>
-          <div style={{flex: '1 0 0'}} />
+          <div style={{ flex: '1 0 0' }} />
           <Button onClick={() => setOpenTwo(false)} variant="outlined">Edit</Button>
           <Button onClick={() => setOpenTwo(false)} variant="outlined" color='error'>Close</Button>
         </DialogActions>

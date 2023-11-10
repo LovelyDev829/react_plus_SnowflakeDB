@@ -2,6 +2,8 @@ const path = require('path')
 
 module.exports = {
   reactScriptsVersion: 'react-scripts',
+  target: "ES6",
+  lib: ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2016.Array.Include"],
   style: {
     sass: {
       loaderOptions: {

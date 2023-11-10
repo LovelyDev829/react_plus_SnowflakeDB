@@ -9,7 +9,11 @@ const config = useJwt.jwtConfig
 const initialUser = () => {
   const item = window.localStorage.getItem('userData')
   //** Parse stored json or if none return initialValue
-  return item ? JSON.parse(item) : {}
+  try {
+    return item ? JSON.parse(item) : {}
+  } catch (e) {
+    return {}
+  }  
 }
 
 export const authSlice = createSlice({
